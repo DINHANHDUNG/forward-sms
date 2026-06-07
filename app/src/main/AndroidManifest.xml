@@ -20,11 +20,11 @@
 
         <!-- Remove WorkManager automatic initializer because we use on-demand initialization -->
         <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:name="androidx.work.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"
             android:exported="false"
-            tools:node="remove" />
-        <!-- (removed non-impl initializer entry) -->
+            tools:node="remove"
+            tools:ignore="Instantiatable" />
 
         <service
             android:name="com.example.forwardsms.service.TgPollingService"
@@ -57,5 +57,15 @@
         </activity>
         <activity android:name="com.example.forwardsms.ui.LogActivity" />
 
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup.InitializationProvider"
+                tools:node="remove" />
+        </provider>
     </application>
 </manifest>
