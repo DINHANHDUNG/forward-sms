@@ -10,8 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,21 +22,23 @@ jobs:
 
       - name: Create Android SDK root
         run: |
-          mkdir -p $ANDROID_SDK_ROOT
+          ANDROID_SDK_ROOT="$RUNNER_TEMP/android-sdk"
+          mkdir -p "$ANDROID_SDK_ROOT"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
 
       - name: Install Android SDK command-line tools and platforms
         run: |
           # download command-line tools
+          ANDROID_SDK_ROOT="$RUNNER_TEMP/android-sdk"
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-          unzip -q cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
-          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+          unzip -q cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+          mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Create local.properties for SDK location
         run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          echo "sdk.dir=$RUNNER_TEMP/android-sdk" > local.properties
 
       - name: Build Debug APK
         run: |
