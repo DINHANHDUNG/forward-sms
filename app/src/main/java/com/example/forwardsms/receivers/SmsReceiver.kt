@@ -10,6 +10,7 @@ import androidx.work.Data
 import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.forwardsms.core.utils.SmsHelper
 import com.example.forwardsms.work.ProcessIncomingSmsWorker
 
 class SmsReceiver : BroadcastReceiver() {
@@ -23,6 +24,7 @@ class SmsReceiver : BroadcastReceiver() {
                     for (pdu in pduObjects) {
                         val sms = SmsMessage.createFromPdu(pdu as ByteArray, format)
                         val sender = sms.originatingAddress ?: ""
+                        val senderName = SmsHelper.getContactName(context, sender) ?: sender
                         val body = sms.messageBody ?: ""
                         val timestamp = sms.timestampMillis
 
@@ -30,7 +32,7 @@ class SmsReceiver : BroadcastReceiver() {
 
                         val data = Data.Builder()
                             .putString("sender", sender)
-                            .putString("senderName", "")
+                            .putString("senderName", senderName)
                             .putLong("timestamp", timestamp)
                             .putString("body", body)
                             .build()
