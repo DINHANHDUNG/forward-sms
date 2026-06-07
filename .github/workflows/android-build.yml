@@ -40,13 +40,68 @@ jobs:
         run: |
           echo "sdk.dir=$RUNNER_TEMP/android-sdk" > local.properties
 
-      - name: Build Debug APK
+      - name: Print environment info
+        run: |
+          echo "=== Java version ==="
+          java -version || true
+          echo "=== Gradle version ==="
+          chmod +x gradle-8.4/bin/gradle || true
+          ./gradle-8.4/bin/gradle -v || true
+          echo "=== Disk usage ==="
+          df -h || true
+          echo "=== Workspace listing ==="
+          ls -la || true
+          echo "=== app directory ==="
+          ls -la app || true
+          echo "=== gradle.properties ==="
+          cat gradle.properties || true
+
+      - name: Build Debug APK (capture logs)
         run: |
           chmod +x gradle-8.4/bin/gradle || true
-          ./gradle-8.4/bin/gradle :app:assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx3g"
+          set -o pipefail
+          ./gradle-8.4/bin/gradle :app:assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx3g" --stacktrace --info 2>&1 | tee gradle.log
+          echo $? > build_exit_code || true
+        continue-on-error: true
+
+      - name: Upload Gradle log and metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-debug-logs
+          path: |
+            gradle.log
+            build_exit_code
+            local.properties
+            gradle.properties
+
+      - name: Check for APK
+        id: check_apk
+        run: |
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload APK artifact
+        if: always() && steps.check_apk.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Fail if build failed
+        if: always()
+        run: |
+          if [ -f build_exit_code ]; then
+            code=$(cat build_exit_code)
+            echo "Build exit code: $code"
+            if [ "$code" != "0" ]; then
+              echo "Build failed, exiting with code $code"
+              exit $code
+            fi
+          else
+            echo "No build_exit_code found, assuming failure"
+            exit 1
+          fi
