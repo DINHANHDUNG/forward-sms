@@ -59,7 +59,7 @@ jobs:
       - name: Build Debug APK (capture logs)
         run: |
           set -euo pipefail
-          # choose gradle command: prefer ./gradlew, then ./gradle-8.4/bin/gradle, then extract gradle-8.4-bin.zip, else install gradle
+          # choose gradle command: prefer ./gradlew, then ./gradle-8.4/bin/gradle, then extract gradle-8.4-bin.zip, else download Gradle 8.4
           gradle_cmd=""
           if [ -x "./gradlew" ]; then
             gradle_cmd="./gradlew"
@@ -70,7 +70,7 @@ jobs:
             unzip -q gradle-8.4-bin.zip -d .
             gradle_cmd="./gradle-8.4/bin/gradle"
           else
-            echo "No Gradle wrapper or local distribution found; downloading Gradle 8.4 distribution"
+            echo "No Gradle wrapper or local distribution found; downloading Gradle 8.4"
             GRADLE_DIST_URL="https://services.gradle.org/distributions/gradle-8.4-bin.zip"
             curl -sSLo gradle-8.4-bin.zip "$GRADLE_DIST_URL"
             unzip -q gradle-8.4-bin.zip -d .
@@ -82,10 +82,12 @@ jobs:
           fi
 
           echo "Using gradle command: $gradle_cmd"
-          set -o pipefail
-          # Run build and capture output
+          # Run build but ensure we always capture the exit code (disable errexit temporarily)
+          set +e
           $gradle_cmd :app:assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx3g" --stacktrace --info 2>&1 | tee gradle.log
-          echo ${PIPESTATUS[0]:-0} > build_exit_code || true
+          rc=${PIPESTATUS[0]:-$?}
+          echo "$rc" > build_exit_code || true
+          set -e
         continue-on-error: true
 
       - name: Upload Gradle log and metadata
