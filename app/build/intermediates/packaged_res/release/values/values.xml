@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Forward SMS</string>
+    <style name="Theme.ForwardSMS" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        
+    </style>
+</resources>

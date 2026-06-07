@@ -1,0 +1,22 @@
+R_DEF: Internal format may change without notice
+local
+id btnGrantPermissions
+id btnSave
+id btnSendTest
+id btnSettings
+id btnTest
+id etChatId
+id etToken
+id tvBattery
+id tvLastHeartbeat
+id tvLastSms
+id tvLastTelegram
+id tvLogs
+id tvNetwork
+id tvQueueSize
+id tvSim
+layout activity_dashboard
+layout activity_logs
+layout activity_settings
+string app_name
+style Theme.ForwardSMS

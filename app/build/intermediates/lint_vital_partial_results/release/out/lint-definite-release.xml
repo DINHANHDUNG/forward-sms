@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="incidents">
+
+    <incident
+        id="Instantiatable"
+        severity="fatal"
+        message="`WorkManagerInitializer` must extend android.content.ContentProvider">
+        <location
+            file="${:app*release*sourceProvider*0*manifest*0}"
+            line="28"
+            column="27"
+            startOffset="1357"
+            endLine="28"
+            endColumn="63"
+            endOffset="1393"/>
+    </incident>
+
+    <incident
+        id="RemoveWorkManagerInitializer"
+        severity="fatal"
+        message="Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization.">
+        <location
+            file="${:app*projectDir}"/>
+    </incident>
+
+</incidents>

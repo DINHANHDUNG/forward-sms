@@ -1,0 +1,7 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+.gradle/
+gradle-8.4/
+*.zip
+*.jar

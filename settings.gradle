@@ -1,0 +1,2 @@
+rootProject.name = "forward-sms"
+include ':app'
