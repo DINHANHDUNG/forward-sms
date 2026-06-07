@@ -70,9 +70,11 @@ jobs:
             unzip -q gradle-8.4-bin.zip -d .
             gradle_cmd="./gradle-8.4/bin/gradle"
           else
-            echo "No Gradle wrapper or local distribution found; installing Gradle via apt"
-            sudo apt-get update && sudo apt-get install -y gradle unzip || true
-            gradle_cmd="gradle"
+            echo "No Gradle wrapper or local distribution found; downloading Gradle 8.4 distribution"
+            GRADLE_DIST_URL="https://services.gradle.org/distributions/gradle-8.4-bin.zip"
+            curl -sSLo gradle-8.4-bin.zip "$GRADLE_DIST_URL"
+            unzip -q gradle-8.4-bin.zip -d .
+            gradle_cmd="./gradle-8.4/bin/gradle"
           fi
 
           if [ "$gradle_cmd" != "gradle" ]; then
