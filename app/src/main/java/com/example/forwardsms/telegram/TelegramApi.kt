@@ -33,14 +33,22 @@ class TelegramApi @Inject constructor(private val client: OkHttpClient, private 
     private fun getChatId(): String? = prefs.getString(PREF_CHAT_ID, null)?.trim()
 
     fun sendMessage(text: String): Boolean {
+        return sendMessage(text, null, null)
+    }
+
+    fun sendMessage(text: String, chatIdOverride: String? = null, replyMarkupJson: String? = null): Boolean {
         val token = getToken() ?: return false
-        val chatId = getChatId() ?: return false
+        val chatId = chatIdOverride ?: getChatId() ?: return false
         val url = "$BASE/bot$token/sendMessage"
-        val form = FormBody.Builder()
+        val formBuilder = FormBody.Builder()
             .add("chat_id", chatId)
             .add("text", text)
-            .build()
-        val request = Request.Builder().url(url).post(form).build()
+
+        if (!replyMarkupJson.isNullOrEmpty()) {
+            formBuilder.add("reply_markup", replyMarkupJson)
+        }
+
+        val request = Request.Builder().url(url).post(formBuilder.build()).build()
         return try {
             client.newCall(request).execute().use { response ->
                 val ok = response.isSuccessful
@@ -52,6 +60,24 @@ class TelegramApi @Inject constructor(private val client: OkHttpClient, private 
             }
         } catch (ex: Exception) {
             Log.e(TAG, "sendMessage exception", ex)
+            false
+        }
+    }
+
+    fun answerCallbackQuery(callbackQueryId: String, text: String? = null): Boolean {
+        val token = getToken() ?: return false
+        val url = "$BASE/bot$token/answerCallbackQuery"
+        val formBuilder = FormBody.Builder().add("callback_query_id", callbackQueryId)
+        if (!text.isNullOrEmpty()) formBuilder.add("text", text)
+        val request = Request.Builder().url(url).post(formBuilder.build()).build()
+        return try {
+            client.newCall(request).execute().use { resp ->
+                val ok = resp.isSuccessful
+                if (!ok) Log.w(TAG, "answerCallbackQuery failed: ${resp.code} ${resp.message}")
+                ok
+            }
+        } catch (ex: Exception) {
+            Log.e(TAG, "answerCallbackQuery exception", ex)
             false
         }
     }

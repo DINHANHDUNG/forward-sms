@@ -48,6 +48,8 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.example.forwardsms.receivers.ScheduledRebootReceiver" android:exported="true" />
+
         <activity android:name="com.example.forwardsms.ui.SettingsActivity" />
         <activity android:name="com.example.forwardsms.ui.DashboardActivity" android:exported="true">
             <intent-filter>
