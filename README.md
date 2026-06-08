@@ -19,3 +19,4 @@ Notes:
 Security:
 - Do not enable unnecessary permissions for testing. The app requires SMS and call permissions to operate.
 "# forward-sms" 
+.
